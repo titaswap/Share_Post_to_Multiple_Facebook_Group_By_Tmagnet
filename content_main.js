@@ -18,6 +18,42 @@
 
   console.log('Share Unilimited safe content script loaded and active.');
 
+  // ==================== ANTI-THROTTLE: Prevent Chrome from sleeping this tab ====================
+  // Chrome throttles background tabs — this keeps timers (sleep/countdown) running at full speed.
+  let _antiThrottleCtx = null;
+  let _antiThrottleSource = null;
+
+  function startAntiThrottle() {
+    try {
+      if (_antiThrottleCtx) return; // Already running
+      _antiThrottleCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = _antiThrottleCtx.createOscillator();
+      const gainNode = _antiThrottleCtx.createGain();
+      gainNode.gain.value = 0; // Completely silent
+      oscillator.connect(gainNode);
+      gainNode.connect(_antiThrottleCtx.destination);
+      oscillator.start(0);
+      _antiThrottleSource = oscillator;
+      console.log('🔊 Anti-throttle active: tab will run at full speed in background.');
+    } catch (e) {
+      console.warn('Anti-throttle could not start:', e);
+    }
+  }
+
+  function stopAntiThrottle() {
+    try {
+      if (_antiThrottleSource) { _antiThrottleSource.stop(); _antiThrottleSource = null; }
+      if (_antiThrottleCtx) { _antiThrottleCtx.close(); _antiThrottleCtx = null; }
+      console.log('🔇 Anti-throttle stopped.');
+    } catch (e) { }
+  }
+
+  // Expose globally so Core can use it
+  window.ShareUnlimited = window.ShareUnlimited || {};
+  window.ShareUnlimited.startAntiThrottle = startAntiThrottle;
+  window.ShareUnlimited.stopAntiThrottle = stopAntiThrottle;
+  // ================================================================================================
+
   // Ensure namespace exists (should be created by core/ui scripts)
   window.ShareUnlimited = window.ShareUnlimited || {};
 

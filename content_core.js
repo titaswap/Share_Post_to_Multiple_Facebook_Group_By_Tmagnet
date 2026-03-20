@@ -1211,6 +1211,10 @@
     let errorCount = 0;
     const errors = [];
 
+    // Start anti-throttle so Chrome won't slow this tab in background
+    if (window.ShareUnlimited.startAntiThrottle) window.ShareUnlimited.startAntiThrottle();
+
+    try {
     for (let currentRepeat = 1; currentRepeat <= repeatCount; currentRepeat++) {
       if (State.shareProcessCancelled) break;
       
@@ -1376,6 +1380,10 @@
         await countdown(Math.floor(repeatDelayMs / 1000));
       }
     } // End outer loop
+    } finally {
+      // Always stop anti-throttle when done or on error
+      if (window.ShareUnlimited.stopAntiThrottle) window.ShareUnlimited.stopAntiThrottle();
+    }
 
     if (UI && !State.shareProcessCancelled) {
       UI.showCompletionMessage(errorCount === 0, successCount, groupNames.length * repeatCount);
