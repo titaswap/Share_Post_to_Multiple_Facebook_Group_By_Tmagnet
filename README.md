@@ -21,3 +21,8 @@ This extension has been audited and refactored to ensure:
 
 ## ⚠️ Disclaimer
 This tool automates user actions. Use responsibly to avoid Facebook restrictions. Recommended sharing limit: 20-30 groups per day.
+
+
+git add .
+git commit -m "fix: share dialog retry improved"
+git push

@@ -111,8 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   // HELPER: Update Count
   // ============================================================
-  function updateGroupCount(count) {
-    if (groupCountSpan) groupCountSpan.textContent = `${count} groups found`;
+  function updateGroupCount(totalCount) {
+    if (!groupCountSpan) return;
+    const checkedCount = groupListDiv ? groupListDiv.querySelectorAll('.group-checkbox:checked').length : 0;
+    if (checkedCount > 0) {
+      groupCountSpan.textContent = `${checkedCount} selected / ${totalCount} found`;
+    } else {
+      groupCountSpan.textContent = `${totalCount} groups found`;
+    }
   }
 
   // ============================================================
@@ -158,6 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update toggle-chosen button
     updateToggleChosenBtn();
+
+    // Listen to checkbox changes to update selected count badge live
+    groupListDiv.querySelectorAll('.group-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        updateGroupCount(allGroups.length);
+        updateToggleChosenBtn();
+      });
+    });
   }
 
   // ============================================================
@@ -215,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         popupSavePresetBtn.classList.add('hidden');
       }
     }
+    updateGroupCount(allGroups.length);
   }
 
   if (toggleChosenBtn) {
